@@ -5,7 +5,8 @@ MACHINE_ARCH_LIST.little = \
 	armv7 \
 	i386 \
 	powerpc64le \
-	riscv*
+	riscv* \
+	loongarch*
 
 MACHINE_ARCH_LIST.big = \
 	powerpc \
