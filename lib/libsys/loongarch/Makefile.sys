@@ -1,0 +1,7 @@
+SRCS+=	__vdso_gettc.c \
+	pdrfork_thread_gen.c \
+	rfork_thread_gen.c \
+	sched_getcpu_gen.c
+
+MDASM=	cerror.S \
+	vfork.S
