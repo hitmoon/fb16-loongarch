@@ -79,6 +79,10 @@
 #  define LG_VADDR		48
 #  define LG_SIZEOF_PTR		3
 #endif
+#ifdef __loongarch__
+#  define LG_VADDR		48
+#  define LG_SIZEOF_PTR		3
+#endif
 
 #if LG_VADDR > 32
 #  define JEMALLOC_RETAIN
