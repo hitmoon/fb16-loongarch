@@ -1,0 +1,71 @@
+crypto/des/des_enc.c		optional	netsmb
+dev/ofw/ofw_cpu.c		optional	fdt
+dev/ofw/ofw_pcib.c		optional 	pci fdt
+dev/pci/pci_dw.c		optional	pci fdt
+dev/pci/pci_dw_if.m		optional	pci fdt
+dev/pci/pci_host_generic_fdt.c	optional	pci fdt
+dev/uart/uart_cpu_acpi.c		optional	uart acpi
+dev/uart/uart_cpu_loongarch.c	optional	uart
+dev/acpica/acpi_bus_if.m			optional acpi
+dev/acpica/acpi_if.m				optional acpi
+kern/msi_if.m			standard
+kern/pic_if.m			standard
+kern/link_elf_obj.c		standard
+kern/subr_devmap.c		standard
+kern/subr_dummy_vdso_tc.c	standard
+kern/subr_intr.c		standard
+kern/subr_physmem.c		standard
+libkern/bcopy.c			standard
+libkern/memcmp.c		standard
+libkern/memset.c		standard
+libkern/strcmp.c		standard
+libkern/strlen.c		standard
+libkern/strncmp.c		standard
+loongarch/loongarch/autoconf.c		standard
+loongarch/loongarch/bus_machdep.c	standard
+loongarch/loongarch/bus_space_asm.S	standard
+loongarch/loongarch/busdma_bounce.c	standard
+loongarch/loongarch/busdma_machdep.c	standard
+loongarch/loongarch/clock.c		standard
+loongarch/loongarch/copyinout.S		standard
+loongarch/loongarch/cpufunc_asm.S	standard
+loongarch/loongarch/db_disasm.c		optional	ddb
+loongarch/loongarch/db_interface.c	optional	ddb
+loongarch/loongarch/db_trace.c		optional	ddb
+loongarch/loongarch/dump_machdep.c	standard
+loongarch/loongarch/elf_machdep.c	standard
+loongarch/loongarch/exception.S		standard
+loongarch/loongarch/exec_machdep.c	standard
+loongarch/loongarch/gdb_machdep.c	optional	gdb
+loongarch/loongarch/intr_machdep.c	standard
+loongarch/loongarch/identcpu.c		standard
+loongarch/loongarch/locore.S		standard	no-obj
+loongarch/loongarch/machdep.c		standard
+loongarch/loongarch/minidump_machdep.c	standard
+loongarch/loongarch/mp_machdep.c	optional	smp
+loongarch/loongarch/mem.c		standard
+loongarch/loongarch/nexus.c		standard
+loongarch/loongarch/ofw_machdep.c	optional	fdt
+loongarch/loongarch/pmap.c		standard
+loongarch/loongarch/ptrace_machdep.c	standard
+loongarch/loongarch/loongarch_syscon.c	optional	syscon loongarch_syscon fdt
+loongarch/loongarch/stack_machdep.c	optional	ddb | stack
+loongarch/loongarch/support.S		standard
+loongarch/loongarch/swtch.S		standard
+loongarch/loongarch/sys_machdep.c	standard
+loongarch/loongarch/trap.c		standard
+loongarch/loongarch/watch.c		standard
+loongarch/loongarch/timer.c		standard
+loongarch/loongarch/uio_machdep.c	standard
+loongarch/loongarch/unwind.c		optional	ddb | kdtrace_hooks | stack
+loongarch/loongarch/vm_machdep.c	standard
+loongarch/loongarch/cpuic.c		standard
+loongarch/loongarch/eioic.c		standard
+loongarch/loongarch/pch_pic.c		standard
+dev/pci/pci_host_generic.c		optional pci
+dev/pci/pci_host_generic_acpi.c		optional pci acpi
+dev/acpica/acpi_pcib.c			optional acpi pci
+dev/acpica/acpi_pci_link.c		optional acpi pci
+
+# Zstd
+contrib/zstd/lib/freebsd/zstd_kfreebsd.c		optional zstdio compile-with ${ZSTD_C}

@@ -19,6 +19,8 @@ MACHINE_CPU = aim
 MACHINE_CPU = aim altivec
 . elif ${MACHINE_ARCH} == "powerpc64le"
 MACHINE_CPU = aim altivec vsx vsx2
+. elif ${MACHINE_CPUARCH} == "loongarch"
+MACHINE_CPU = loongarch
 . elif ${MACHINE_CPUARCH} == "riscv"
 MACHINE_CPU = riscv
 . endif
@@ -341,6 +343,11 @@ CFLAGS += -mfloat-abi=softfp
 
 .if ${MACHINE_ARCH} == "powerpc"
 LDFLAGS.bfd+= -Wl,--secure-plt
+.endif
+
+.if ${MACHINE_CPUARCH} == "loongarch"
+_CPUCFLAGS = -march=loongarch64 -mabi=lp64d
+LDFLAGS+= -mabi=lp64d
 .endif
 
 .if ${MACHINE_CPUARCH} == "riscv"

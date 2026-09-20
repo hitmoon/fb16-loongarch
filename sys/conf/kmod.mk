@@ -79,11 +79,15 @@ XARGS_J?=	-J
 
 .SUFFIXES: .out .o .c .cc .cxx .C .y .l .s .S .m
 
-# amd64 uses direct linking for kmod, all others use shared binaries
-.if ${MACHINE_CPUARCH} != amd64
-__KLD_SHARED=yes
-.else
+# amd64 and loongarch use direct linking for kmod, all others use shared
+# binaries.  LoongArch needs direct linking because the shared -Bshareable
+# link localizes and folds module-internal VNET/DPCPU symbol references,
+# leaving no dynamic relocation for the kernel module linker to apply when
+# those sections are copied to modspace.
+.if ${MACHINE_CPUARCH} == amd64 || ${MACHINE_CPUARCH} == loongarch
 __KLD_SHARED=no
+.else
+__KLD_SHARED=yes
 .endif
 
 .if !empty(CFLAGS:M-O[23s]) && empty(CFLAGS:M-fno-strict-aliasing)
@@ -167,7 +171,8 @@ CFLAGS+=	-fno-omit-frame-pointer -mno-omit-leaf-frame-pointer
 .endif
 
 .if ${MACHINE_CPUARCH} == "aarch64" || ${MACHINE_CPUARCH} == "riscv" || \
-    ${MACHINE_CPUARCH} == "powerpc" || ${MACHINE_CPUARCH} == "i386"
+    ${MACHINE_CPUARCH} == "powerpc" || ${MACHINE_CPUARCH} == "i386" || \
+    ${MACHINE_CPUARCH} == "loongarch"
 CFLAGS+=	-fPIC
 .endif
 
@@ -175,6 +180,20 @@ CFLAGS+=	-fPIC
 # https://bugs.freebsd.org/264094
 # lld >= 14 and recent GNU ld can relax adrp+add and adrp+ldr instructions,
 # which breaks VNET.
+LDFLAGS+=	--no-relax
+.endif
+
+.if ${MACHINE_CPUARCH} == "loongarch"
+# LoongArch normally accesses external/global data through the GOT
+# (pcalau12i + ld.d with R_LARCH_GOT_PC relocations).  The kernel module
+# linker has no GOT at runtime, so use -fdirect-access-external-data to
+# emit direct PC-relative accesses (R_LARCH_PCALA_*) instead.  These are
+# resolved directly by the kernel module linker and work for both
+# address-taking (_VNET_PTR) and value loads, without any GOT slots.
+CFLAGS+=	-fdirect-access-external-data
+# Keep -r link-time relaxation from folding the (now direct) PC-relative
+# references of locally-defined symbols into self-contained sequences that
+# carry no relocation; the kernel module linker must be able to patch them.
 LDFLAGS+=	--no-relax
 .endif
 
