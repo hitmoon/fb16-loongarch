@@ -1,0 +1,16 @@
+
+#NO_UNIVERSE
+
+include "GENERIC"
+
+ident QEMU
+
+options 	HZ=100
+options 	ROOTDEVNAME=\"ufs:/dev/vtbd0p2\"
+options		BOOTVERBOSE=1
+options 	KTR
+options		INVARIANTS
+options		INVARIANT_SUPPORT
+
+#options  	VERBOSE_SYSINIT=1
+
