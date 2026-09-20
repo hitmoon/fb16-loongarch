@@ -1001,12 +1001,27 @@ link_elf_load_file(linker_class_t cls, const char *filename,
 	 */
 #ifdef __amd64__
 	mapbase = KERNBASE;
+#elif defined(__loongarch__)
+	mapbase = VM_MIN_KERNEL_ADDRESS + LA_KMOD_VA_SKIP;
 #else
 	mapbase = VM_MIN_KERNEL_ADDRESS;
 #endif
+#ifdef __loongarch__
+	/*
+	 * Place modules in the window above the bootstrap PUD
+	 * ([+1 GB, +1.75 GB)) so PCALA/GOT relocations stay within
+	 * +/-2 GB of the kernel's symbols and we never touch the
+	 * kernel's untracked bootstrap L2 pages.  See machine/vmparam.h.
+	 */
+	error = vm_map_find(kernel_map, ef->object, 0, &mapbase,
+	    round_page(mapsize),
+	    VM_MIN_KERNEL_ADDRESS + LA_KMOD_VA_SKIP + LA_KMOD_VA_SIZE,
+	    VMFS_OPTIMAL_SPACE, VM_PROT_ALL, VM_PROT_ALL, 0);
+#else
 	error = vm_map_find(kernel_map, ef->object, 0, &mapbase,
 	    round_page(mapsize), 0, VMFS_OPTIMAL_SPACE, VM_PROT_ALL,
 	    VM_PROT_ALL, 0);
+#endif
 	if (error != KERN_SUCCESS) {
 		vm_object_deallocate(ef->object);
 		ef->object = NULL;

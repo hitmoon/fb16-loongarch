@@ -488,6 +488,15 @@ int
 memguard_cmp_zone(uma_zone_t zone)
 {
 
+	/*
+	 * Never intercept zones used by the VM/vmem infrastructure
+	 * (UMA_ZONE_VM, e.g. boundary tags) or internal UMA bucket
+	 * zones (UMA_ZFLAG_BUCKET).  These are allocated from within
+	 * memguard itself and would create a circular dependency.
+	 */
+	if ((zone->uz_flags & (UMA_ZONE_VM | UMA_ZFLAG_BUCKET)) != 0)
+		return (0);
+
 	if ((memguard_options & MG_GUARD_NOFREE) == 0 &&
 	    zone->uz_flags & UMA_ZONE_NOFREE)
 		return (0);

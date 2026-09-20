@@ -847,6 +847,16 @@ kva_import(void *unused, vmem_size_t size, int flags, vmem_addr_t *addrp)
 	    ("kva_import: Size %jd is not a multiple of %d",
 	    (intmax_t)size, (int)KVA_QUANTUM));
 	addr = vm_map_min(kernel_map);
+#ifdef __loongarch__
+	/*
+	 * Skip the low bootstrap-PUD and the module window above it so
+	 * kmem doesn't steal the [+1GB,+1.75GB) window that link_elf_obj
+	 * reserves for modules (PCALA/GOT reach).  vm_map_min(kernel_map)
+	 * == KERNBASE regardless of virtual_avail, so the skip must be
+	 * measured from KERNBASE to land kmem above the window.
+	 */
+	addr += LA_KMOD_VA_SKIP + LA_KMOD_VA_SIZE;
+#endif
 	result = vm_map_find(kernel_map, NULL, 0, &addr, size, 0,
 	    VMFS_SUPER_SPACE, VM_PROT_ALL, VM_PROT_ALL, MAP_NOFAULT);
 	if (result != KERN_SUCCESS) {

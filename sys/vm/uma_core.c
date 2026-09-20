@@ -3639,6 +3639,21 @@ uma_zalloc_debug(uma_zone_t zone, void **itemp, void *udata, int flags)
 		item = memguard_alloc(zone->uz_size, flags);
 		if (item != NULL) {
 			error = EJUSTRETURN;
+			/*
+			 * Primary zones keep their item initializer on the
+			 * keg (uk_init); zone->uz_init is NULL unless this is
+			 * a UMA_ZONE_SECONDARY zone (zone_ctor sets uz_init
+			 * only in that case, while the slab path initialises
+			 * raw items via keg->uk_init).  A memguard allocation
+			 * is a fresh page, so it must run the keg initializer
+			 * -- otherwise the item is returned uninitialized.
+			 */
+			if (zone->uz_keg->uk_init != NULL &&
+			    zone->uz_keg->uk_init(item, zone->uz_keg->uk_size,
+			    flags) != 0) {
+				*itemp = NULL;
+				return (error);
+			}
 			if (zone->uz_init != NULL &&
 			    zone->uz_init(item, zone->uz_size, flags) != 0) {
 				*itemp = NULL;
