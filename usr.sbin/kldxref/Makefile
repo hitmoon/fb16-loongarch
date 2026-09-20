@@ -21,6 +21,7 @@ KLDELF_SRCS=	ef.c \
 		ef_arm.c \
 		ef_amd64.c \
 		ef_i386.c \
+		ef_loongarch.c \
 		ef_powerpc.c \
 		ef_riscv.c
 SRCS+=	${KLDELF_SRCS}
