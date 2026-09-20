@@ -28,22 +28,72 @@
 #include <eficonsctl.h>
 #include <efilib.h>
 #include <stand.h>
+#include <Guid/FdtHob.h>
+#include <Guid/HobList.h>
+#include <Pi/PiBootMode.h>
+#include <Pi/PiHob.h>
 
 EFI_HANDLE		IH;
 EFI_SYSTEM_TABLE	*ST;
 EFI_BOOT_SERVICES	*BS;
 EFI_RUNTIME_SERVICES	*RS;
 
+/*
+ * Some firmware (e.g. the EDK2 ArmVirt and LoongArch platforms) does not
+ * publish the device tree as a FDT_TABLE_GUID configuration table.  Instead
+ * a copy of the FDT is reachable through a FDT_HOB_GUID HOB on the HOB list,
+ * which the firmware publishes as a configuration table of its own.  Walk
+ * the HOB list and return the FDT address if it is found there.
+ */
+static void *
+efi_get_fdt_hob(EFI_HOB_GENERIC_HEADER *hob)
+{
+	EFI_HOB_GUID_TYPE *guidh;
+	EFI_GUID fdt = FDT_HOB_GUID;
+	UINT64 fdtbase;
+
+	while (hob->HobType != EFI_HOB_TYPE_END_OF_HOB_LIST) {
+		if (hob->HobType == EFI_HOB_TYPE_GUID_EXTENSION) {
+			guidh = (EFI_HOB_GUID_TYPE *)hob;
+			if (!memcmp(&guidh->Name, &fdt, sizeof(EFI_GUID))) {
+				memcpy(&fdtbase, guidh + 1, sizeof(fdtbase));
+				return ((void *)(uintptr_t)fdtbase);
+			}
+		}
+		hob = (EFI_HOB_GENERIC_HEADER *)((char *)hob + hob->HobLength);
+	}
+
+	return (NULL);
+}
+
 void *
 efi_get_table(EFI_GUID *tbl)
 {
+	EFI_HOB_GENERIC_HEADER *hoblist;
 	EFI_GUID *id;
+	EFI_GUID hoblist_guid = HOB_LIST_GUID;
 	int i;
 
+	hoblist = NULL;
 	for (i = 0; i < ST->NumberOfTableEntries; i++) {
 		id = &ST->ConfigurationTable[i].VendorGuid;
+
 		if (!memcmp(id, tbl, sizeof(EFI_GUID)))
 			return (ST->ConfigurationTable[i].VendorTable);
+
+		if (!memcmp(id, &hoblist_guid, sizeof(EFI_GUID)))
+			hoblist = ST->ConfigurationTable[i].VendorTable;
+	}
+
+	/*
+	 * No configuration table matched; if the firmware published a HOB
+	 * list, fall back to it (e.g. for the FDT on LoongArch).
+	 */
+	if (hoblist != NULL) {
+		void *fdt = efi_get_fdt_hob(hoblist);
+
+		if (fdt != NULL)
+			return (fdt);
 	}
 	return (NULL);
 }
