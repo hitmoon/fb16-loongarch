@@ -79,7 +79,7 @@ static const long double ldbl_eps = LDBL_EPSILON;
 ATF_TC_WITHOUT_HEAD(zeros);
 ATF_TC_BODY(zeros, tc)
 {
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch__)
 	atf_tc_expect_fail("https://bugs.freebsd.org/290099");
 #endif
 	long double ldbl_small;
@@ -167,7 +167,7 @@ ATF_TC_BODY(ordinary, tc)
 ATF_TC_WITHOUT_HEAD(boundaries);
 ATF_TC_BODY(boundaries, tc)
 {
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch__)
 	atf_tc_expect_fail("https://bugs.freebsd.org/290099");
 #endif
 	/*
@@ -217,7 +217,7 @@ ATF_TC_BODY(boundaries, tc)
 ATF_TC_WITHOUT_HEAD(overflow);
 ATF_TC_BODY(overflow, tc)
 {
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch__)
 	atf_tc_expect_fail("https://bugs.freebsd.org/290099");
 #endif
 	long double ldbl_max;
