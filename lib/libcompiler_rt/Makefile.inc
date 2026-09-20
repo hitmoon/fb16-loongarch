@@ -184,7 +184,7 @@ SRCF+=		fp_mode
 # only used on some architectures.
 #
 .if ${MACHINE_CPUARCH} == "aarch64" || ${MACHINE_CPUARCH} == "amd64" || \
-    ${MACHINE_CPUARCH} == "riscv"
+    ${MACHINE_CPUARCH} == "riscv" || ${MACHINE_CPUARCH} == "loongarch"
 SRCF+=		addtf3
 SRCF+=		comparetf2
 SRCF+=		divtc3
