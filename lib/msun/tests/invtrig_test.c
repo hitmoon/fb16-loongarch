@@ -125,7 +125,7 @@ sqrt2m1 = 4.14213562373095048801688724209698081e-01L;
 ATF_TC_WITHOUT_HEAD(special);
 ATF_TC_BODY(special, tc)
 {
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch__)
 	atf_tc_expect_fail("https://bugs.freebsd.org/283017");
 #endif
 	testall(asin, 0.0, 0.0, 0);
@@ -305,7 +305,7 @@ ATF_TC_BODY(p2x_atan2, tc)
 ATF_TC_WITHOUT_HEAD(tiny);
 ATF_TC_BODY(tiny, tc)
 {
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch__)
 	atf_tc_expect_fail("https://bugs.freebsd.org/283017");
 #endif
 	float tiny = 0x1.23456p-120f;

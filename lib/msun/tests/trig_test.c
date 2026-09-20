@@ -85,7 +85,7 @@ ATF_TC_HEAD(special, tc)
 }
 ATF_TC_BODY(special, tc)
 {
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch__)
 	atf_tc_expect_fail("https://bugs.freebsd.org/290099");
 #endif
 	/* Values at 0 should be exact. */

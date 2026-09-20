@@ -92,7 +92,7 @@
 ATF_TC_WITHOUT_HEAD(generic_tests);
 ATF_TC_BODY(generic_tests, tc)
 {
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch__)
 	atf_tc_expect_fail("https://bugs.freebsd.org/290099");
 #endif
 	/* log(1) == 0, no exceptions raised */
