@@ -131,7 +131,7 @@ run_tests(void)
 ATF_TC_WITHOUT_HEAD(lrint);
 ATF_TC_BODY(lrint, tc)
 {
-#if defined(__aarch64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__loongarch__)
 	atf_tc_expect_fail("https://bugs.freebsd.org/290099");
 #endif
 	run_tests();

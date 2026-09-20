@@ -1,0 +1,124 @@
+/*-
+ * Copyright (c) 2004 David Schultz <das@FreeBSD.ORG>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
+#include "fenv.h"
+
+/*
+ * Hopefully the system ID byte is immutable, so it's valid to use
+ * this as a default environment.
+ */
+const fenv_t __fe_dfl_env = 0;
+const femode_t __fe_dfl_mode = 0;
+
+int
+(feclearexcept)(int excepts)
+{
+	return (__feclearexcept_int(excepts));
+}
+
+int
+(fegetexceptflag)(fexcept_t *flagp, int excepts)
+{
+	return (__fegetexceptflag_int(flagp, excepts));
+}
+
+int
+(fesetexceptflag)(const fexcept_t *flagp, int excepts)
+{
+	return (__fesetexceptflag_int(flagp, excepts));
+}
+
+int
+(feraiseexcept)(int excepts)
+{
+	return (__feraiseexcept_int(excepts));
+}
+
+int
+(fetestexcept)(int excepts)
+{
+	return (__fetestexcept_int(excepts));
+}
+
+int
+(fegetround)(void)
+{
+	return (__fegetround_int());
+}
+
+int
+(fesetround)(int round)
+{
+	return (__fesetround_int(round));
+}
+
+int
+(fegetmode)(femode_t *modep)
+{
+	return (__fegetmode_int(modep));
+}
+
+int
+(fesetmode)(const femode_t *modep)
+{
+	return (__fesetmode_int(modep));
+}
+
+int
+(fegetenv)(fenv_t *envp)
+{
+	return (__fegetenv_int(envp));
+}
+
+int
+(feholdexcept)(fenv_t *envp)
+{
+	return (__feholdexcept_int(envp));
+}
+
+int
+(fesetenv)(const fenv_t *envp)
+{
+	return (__fesetenv_int(envp));
+}
+
+int
+(feupdateenv)(const fenv_t *envp)
+{
+	return (__feupdateenv_int(envp));
+}
+
+int
+(feenableexcept)(int mask)
+{
+	return (__feenableexcept_int(mask));
+}
+
+int
+(fedisableexcept)(int mask)
+{
+	return (__fedisableexcept_int(mask));
+}
