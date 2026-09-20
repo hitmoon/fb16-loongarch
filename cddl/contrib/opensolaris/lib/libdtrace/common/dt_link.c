@@ -228,6 +228,10 @@ prepare_elf32(dtrace_hdl_t *dtp, const dof_hdr_t *dof, dof_elf32_t *dep)
 			rel->r_offset = s->dofs_offset + dofr[j].dofr_offset;
 			rel->r_info = ELF32_R_INFO(count + dep->de_global,
 			    R_RISCV_32_PCREL);
+#elif defined(__loongarch__)
+			rel->r_offset = s->dofs_offset + dofr[j].dofr_offset;
+			rel->r_info = ELF32_R_INFO(count + dep->de_global,
+			    R_LARCH_32);
 #else
 #error unknown ISA
 #endif
@@ -411,6 +415,10 @@ prepare_elf64(dtrace_hdl_t *dtp, const dof_hdr_t *dof, dof_elf64_t *dep)
 			    dofr[j].dofr_offset;
 			rel->r_info = ELF64_R_INFO(count + dep->de_global,
 			    R_X86_64_PC64);
+#elif defined(__loongarch__)
+			rel->r_offset = s->dofs_offset + dofr[j].dofr_offset;
+			rel->r_info = ELF64_R_INFO(count + dep->de_global,
+			    R_LARCH_64);
 #else
 #error unknown ISA
 #endif
@@ -522,6 +530,8 @@ dump_elf32(dtrace_hdl_t *dtp, const dof_hdr_t *dof, int fd)
 #if defined(__riscv_float_abi_double)
 	elf_file.ehdr.e_flags |= EF_RISCV_FLOAT_ABI_DOUBLE;
 #endif
+#elif defined(__loongarch__)
+	elf_file.ehdr.e_machine = EM_LOONGARCH;
 #endif
 	elf_file.ehdr.e_version = EV_CURRENT;
 	elf_file.ehdr.e_shoff = sizeof (Elf32_Ehdr);
@@ -679,6 +689,8 @@ dump_elf64(dtrace_hdl_t *dtp, const dof_hdr_t *dof, int fd)
 #if defined(__riscv_float_abi_double)
 	elf_file.ehdr.e_flags |= EF_RISCV_FLOAT_ABI_DOUBLE;
 #endif
+#elif defined(__loongarch__)
+	elf_file.ehdr.e_machine = EM_LOONGARCH;
 #endif
 	elf_file.ehdr.e_version = EV_CURRENT;
 	elf_file.ehdr.e_shoff = sizeof (Elf64_Ehdr);
@@ -1132,8 +1144,55 @@ dt_modtext(dtrace_hdl_t *dtp, char *p, int isenabled, GElf_Rela *rela,
 	return (0);
 }
 
+#elif defined(__loongarch__)
+/*
+ * LoongArch uses pcaddu12i + jirl for long calls.  For now provide a
+ * minimal stub implementation so that the library can be linked.
+ */
+#define	DT_OP_NOP		0x03400000  /* andi $zero, $zero, 0 */
+#define	DT_OP_RET		0x4c000020  /* jirl $zero, $ra, 0 */
+#define	DT_REL_NONE		R_LARCH_NONE
+
+static int
+dt_modtext(dtrace_hdl_t *dtp, char *p, int isenabled, GElf_Rela *rela,
+    uint32_t *off)
+{
+	uint32_t *ip;
+
+	/*
+	 * Ensure that the offset is aligned on an instruction boundary.
+	 */
+	if ((rela->r_offset & (sizeof (uint32_t) - 1)) != 0)
+		return (-1);
+
+	/*
+	 * We only know about some specific relocation types.
+	 */
+	if (GELF_R_TYPE(rela->r_info) != R_LARCH_NONE)
+		return (-1);
+
+	ip = (uint32_t *)(p + rela->r_offset);
+
+	/*
+	 * We may have already processed this object file in an earlier linker
+	 * invocation. Check to see if the present instruction sequence matches
+	 * the one we would install below.
+	 */
+	if (ip[0] == DT_OP_NOP || ip[0] == DT_OP_RET)
+		return (0);
+
+	/*
+	 * XXX: Placeholder. Proper instruction modification needs to be
+	 * implemented when full dtrace support for LoongArch is added.
+	 */
+	ip[0] = DT_OP_NOP;
+
+	return (0);
+}
+
 #else
 #error unknown ISA
+
 #endif
 
 /*PRINTFLIKE5*/
@@ -1251,6 +1310,8 @@ process_obj(dtrace_hdl_t *dtp, const char *obj, int *eprobesp)
 		emachine1 = emachine2 = EM_AARCH64;
 #elif defined(__riscv)
 		emachine1 = emachine2 = EM_RISCV;
+#elif defined(__loongarch__)
+		emachine1 = emachine2 = EM_LOONGARCH;
 #endif
 		symsize = sizeof (Elf64_Sym);
 	} else {
@@ -1261,6 +1322,8 @@ process_obj(dtrace_hdl_t *dtp, const char *obj, int *eprobesp)
 		emachine1 = emachine2 = EM_PPC;
 #elif defined(__i386) || defined(__amd64)
 		emachine1 = emachine2 = EM_386;
+#elif defined(__loongarch__)
+		emachine1 = emachine2 = EM_LOONGARCH;
 #endif
 		symsize = sizeof (Elf32_Sym);
 	}
