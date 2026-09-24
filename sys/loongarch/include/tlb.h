@@ -92,7 +92,7 @@ static __always_inline void invtlb(uint32_t op, uint32_t info, uint64_t addr)
 }
 
 static __always_inline void
-invtlb_all(uint32_t op, uint32_t info, uint64_t addr)
+invtlb_all(uint32_t op)
 {
 	__asm __volatile(
 		"invtlb %0, $zero, $zero\n\t"
@@ -104,7 +104,7 @@ invtlb_all(uint32_t op, uint32_t info, uint64_t addr)
 
 static __always_inline void flush_tlb_user(void)
 {
-	invtlb_all(INVTLB_CURRENT_GFALSE, 0, 0);
+	invtlb_all(INVTLB_CURRENT_GFALSE);
 }
 
 #endif

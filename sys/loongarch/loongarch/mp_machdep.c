@@ -448,7 +448,7 @@ la_tlb_local_flush(pmap_t pmap, uint8_t op, uint64_t addr1, uint64_t addr2)
 				invtlb(INVTLB_ADDR_GTRUE_OR_ASID, asid, va);
 			break;
 		default:
-			invtlb_all(INVTLB_CURRENT_ALL, 0, 0);
+			invtlb_all(INVTLB_CURRENT_ALL);
 			/*
 			 * CURRENT_ALL flushed every entry on this CPU,
 			 * including all stale user-ASID entries.  Reset
@@ -473,7 +473,7 @@ la_tlb_local_flush(pmap_t pmap, uint8_t op, uint64_t addr1, uint64_t addr2)
 		 * ASID's entries are also flushed, so skip it.
 		 */
 		if (la_stale[cpuid].overflow) {
-			invtlb_all(INVTLB_CURRENT_GFALSE, 0, 0);
+			invtlb_all(INVTLB_CURRENT_GFALSE);
 		} else {
 			for (i = 0; i < la_stale[cpuid].count; i++)
 				invtlb(INVTLB_GFALSE_AND_ASID,
@@ -483,7 +483,7 @@ la_tlb_local_flush(pmap_t pmap, uint8_t op, uint64_t addr1, uint64_t addr2)
 			if (asid != 0)
 				invtlb(INVTLB_GFALSE_AND_ASID, asid, 0);
 			else
-				invtlb_all(INVTLB_CURRENT_GFALSE, 0, 0);
+				invtlb_all(INVTLB_CURRENT_GFALSE);
 		}
 		la_stale[cpuid].count = 0;
 		la_stale[cpuid].overflow = false;

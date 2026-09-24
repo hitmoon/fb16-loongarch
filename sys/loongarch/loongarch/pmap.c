@@ -781,7 +781,7 @@ pmap_bootstrap_dmap(vm_paddr_t min_pa, vm_paddr_t max_pa)
 	dmap_phys_max = pa;
 	dmap_max_addr = va;
 
-	invtlb_all(INVTLB_CURRENT_ALL, 0, 0);
+	invtlb_all(INVTLB_CURRENT_ALL);
 }
 
 static vm_offset_t
@@ -999,7 +999,7 @@ pmap_bootstrap(vm_offset_t pgd, vm_paddr_t kernstart, vm_size_t kernlen)
 	 * pv_chunks_mutex. */
 	mtx_init(&pv_chunks_mutex, "pmap pv chunk list", NULL, MTX_DEF);
 
-	invtlb_all(INVTLB_CURRENT_ALL, 0, 0);
+	invtlb_all(INVTLB_CURRENT_ALL);
 
 #ifdef INVARIANTS
 	pmap_inv_active = true;
@@ -1129,7 +1129,7 @@ pmap_invalidate_all(pmap_t pmap)
 	    PCPU_GET(cpuid),
 	    pmap == kernel_pmap ? "kernel" : "user");
 	if (pmap == kernel_pmap)
-		invtlb_all(INVTLB_CURRENT_ALL, 0, 0);
+		invtlb_all(INVTLB_CURRENT_ALL);
 	else
 		flush_tlb_local(pmap);
 }
@@ -5712,7 +5712,7 @@ pmap_activate_boot(pmap_t pmap)
 	 * invalidated, or entries mapping the wrong PFN.  A full flush forces
 	 * the HW walker to re-walk the (now current) page tables on first use.
 	 */
-	invtlb_all(INVTLB_CURRENT_ALL, 0, 0);
+	invtlb_all(INVTLB_CURRENT_ALL);
 }
 
 void
