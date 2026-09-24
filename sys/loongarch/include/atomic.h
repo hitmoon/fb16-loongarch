@@ -582,7 +582,7 @@ atomic_testandclear_acq_64(volatile uint64_t *p, u_int val)
 }
 
 static __inline uint64_t
-atomic_load_acq_64(volatile uint64_t *p)
+atomic_load_acq_64(const volatile uint64_t *p)
 {
 	uint64_t ret;
 
