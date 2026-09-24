@@ -802,8 +802,7 @@ fdt_physmem_exclude_region_cb(const struct mem_region *mr, void *arg __unused)
  */
 #define	LOONGARCH_EARLY_UART_PHYS	0x1fe001e0
 #define	LOONGARCH_EARLY_UART						\
-    ((volatile uint8_t *)(((uint64_t)CSR_DMW0_VSEG << DMW_PABITS) |	\
-	LOONGARCH_EARLY_UART_PHYS))
+    ((volatile uint8_t *)(CSR_DMW0_BASE | LOONGARCH_EARLY_UART_PHYS))
 
 static void
 loongarch_early_putc(int c)
