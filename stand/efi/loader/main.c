@@ -1064,9 +1064,7 @@ parse_uefi_con_out(void)
 	 * console. It may mirror a video console, or may be stand alone. If it
 	 * is present, we return RB_SERIAL and will use it for the kernel.
 	 */
-#ifndef __loongarch__
 	how = check_acpi_spcr();
-#endif
 	sz = sizeof(buf);
 	rv = efi_global_getenv("ConOut", buf, &sz);
 	if (rv != EFI_SUCCESS)
