@@ -273,8 +273,8 @@
 /* Direct Map window 0/1 */
 #define	DMW_PABITS		48
 
-#define	CSR_DMW0_PLV0		(1UL << 0)
-#define	CSR_DMW0_VSEG		0x8000
+#define	CSR_DMW0_PLV0		(1 << 0)
+#define	CSR_DMW0_VSEG		(_ULCAST_(0x8000))
 #define	CSR_DMW0_BASE		(CSR_DMW0_VSEG << DMW_PABITS)
 #define	CSR_DMW0_INIT		(CSR_DMW0_BASE | CSR_DMW0_PLV0)
 
