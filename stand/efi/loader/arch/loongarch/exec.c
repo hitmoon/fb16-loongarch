@@ -1,0 +1,90 @@
+/*-
+ * Copyright (c) 2001 Benno Rice <benno@FreeBSD.org>
+ * Copyright (c) 2007 Semihalf, Rafal Jaworowski <raj@semihalf.com>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
+#include <sys/param.h>
+#include <sys/linker.h>
+
+#include <machine/elf.h>
+
+#include <stand.h>
+
+#include <efi.h>
+#include <efilib.h>
+#include <Pi/PiMultiPhase.h>
+
+#include "bootstrap.h"
+#include "loader_efi.h"
+
+static int
+__elfN(exec)(struct preloaded_file *fp)
+{
+	struct file_metadata *fmp;
+	vm_offset_t modulep, kernend;
+	Elf_Ehdr *e;
+	int error;
+	void (*entry)(void *, void *, vm_offset_t);
+
+	if ((fmp = file_findmetadata(fp, MODINFOMD_ELFHDR)) == NULL)
+		return (EFTYPE);
+
+	e = (Elf_Ehdr *)&fmp->md_data;
+
+	efi_time_fini();
+
+	entry = efi_translate(e->e_entry);
+
+	printf("Kernel entry at %p...\n", entry);
+	printf("Kernel args: %s\n", fp->f_args);
+
+	/*
+	 * we have to cleanup here because net_cleanup() doesn't work after
+	 * we call ExitBootServices
+	 */
+	dev_cleanup();
+
+	if ((error = bi_load(fp->f_args, &modulep, &kernend, true)) != 0) {
+		efi_time_init();
+		return (error);
+	}
+
+	/*
+	 * At this point we've called ExitBootServices, so we can't call
+	 * printf or any other function that uses Boot Services
+	 */
+	(*entry)((void *)modulep, (void *)entry, kernend);
+	panic("exec returned");
+}
+
+static struct file_format loongarch_elf = {
+	.l_load = __elfN(loadfile),
+	.l_exec = __elfN(exec)
+};
+
+struct file_format *file_formats[] = {
+	&loongarch_elf,
+	NULL
+};

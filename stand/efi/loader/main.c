@@ -869,8 +869,8 @@ acpi_find_table(uint8_t *sig)
 	if (rsdp == NULL)
 		return (NULL);
 
-	rsdt = (ACPI_TABLE_RSDT *)(uintptr_t)rsdp->RsdtPhysicalAddress;
-	xsdt = (ACPI_TABLE_XSDT *)(uintptr_t)rsdp->XsdtPhysicalAddress;
+	rsdt = (ACPI_TABLE_RSDT *)acpi_map_sdt(rsdp->RsdtPhysicalAddress);
+	xsdt = (ACPI_TABLE_XSDT *)acpi_map_sdt(rsdp->XsdtPhysicalAddress);
 	if (rsdp->Revision < 2) {
 		sdp = (ACPI_TABLE_HEADER *)rsdt;
 		addr_size = sizeof(uint32_t);
