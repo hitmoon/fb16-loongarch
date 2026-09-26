@@ -3,6 +3,8 @@
  *
  * Copyright (c) 2020 Mitchell Horne <mhorne@FreeBSD.org>
  *
+ * Copyright (c) 2026 Xiaoqiang Zhao <zhaoxiaoqiang007@gmail.com>
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -27,7 +29,6 @@
 
 #include <machine/asm.h>
 
-#define	IMAGE_FILE_MACHINE_LOONGARCH32	0x6232
 #define	IMAGE_FILE_MACHINE_LOONGARCH64	0x6264
 
 #define	IMAGE_SCN_CNT_CODE		0x00000020
@@ -35,6 +36,7 @@
 #define	IMAGE_SCN_MEM_DISCARDABLE	0x02000000
 #define	IMAGE_SCN_MEM_EXECUTE		0x20000000
 #define	IMAGE_SCN_MEM_READ		0x40000000
+#define	IMAGE_FILE_EXECUTABLE		0x0002
 
 	.section .peheader,"a"
 efi_start:
@@ -56,7 +58,7 @@ coff_head:
 	.long	0				/* No symbol table */
 	.long	0				/* No symbols */
 	.short	section_table - optional_header	/* Optional header size */
-	.short	0	/* Characteristics TODO: Fill in */
+	.short	IMAGE_FILE_EXECUTABLE		/* Characteristics */
 
 optional_header:
 	.short	0x020b				/* PE32+ (64-bit addressing) */
@@ -154,7 +156,7 @@ _start:
 
 	ld.d	$a1, $sp, 8
 	ld.d	$a0, $sp, 0
-	bl	_C_LABEL(efi_main)
+	b	_C_LABEL(efi_main)
 
 	/* NOTREACHED */
 2:	idle	0
