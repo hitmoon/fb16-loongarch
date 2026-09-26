@@ -25,12 +25,9 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
 #include <sys/param.h>
 #include <sys/linker.h>
 
-#include <machine/md_var.h>
-#include <machine/metadata.h>
 #include <machine/elf.h>
 
 #include <stand.h>
@@ -38,12 +35,9 @@
 #include <efi.h>
 #include <efilib.h>
 #include <Pi/PiMultiPhase.h>
-#include <Protocol/MpService.h>
 
 #include "bootstrap.h"
 #include "loader_efi.h"
-
-extern int bi_load(char *, vm_offset_t *, vm_offset_t *, bool);
 
 static int
 __elfN(exec)(struct preloaded_file *fp)
@@ -53,10 +47,6 @@ __elfN(exec)(struct preloaded_file *fp)
 	Elf_Ehdr *e;
 	int error;
 	void (*entry)(void *, void *, vm_offset_t);
-	UINTN cpu_num, cpu_enum;
-	EFI_MP_SERVICES_PROTOCOL *mp_service;
-	EFI_STATUS Status;
-	EFI_GUID mps = EFI_MP_SERVICES_PROTOCOL_GUID;
 
 	if ((fmp = file_findmetadata(fp, MODINFOMD_ELFHDR)) == NULL)
 		return (EFTYPE);
@@ -64,19 +54,6 @@ __elfN(exec)(struct preloaded_file *fp)
 	e = (Elf_Ehdr *)&fmp->md_data;
 
 	efi_time_fini();
-
-	Status = BS->LocateProtocol(&mps, NULL, (VOID**)&mp_service);
-
-	if (EFI_ERROR(Status)) {
-		printf("Failed to locate MP Service Protocol.\n");
-	}
-
-	Status = mp_service->GetNumberOfProcessors(mp_service, &cpu_num, &cpu_enum);
-	if (EFI_ERROR(Status)) {
-		printf("Failed to get number of processors\n");
-	}
-
-	printf("Total processors: %lu, Enabled processors: %lu\n", cpu_num, cpu_enum);
 
 	entry = efi_translate(e->e_entry);
 
@@ -97,8 +74,8 @@ __elfN(exec)(struct preloaded_file *fp)
 }
 
 static struct file_format loongarch_elf = {
-	__elfN(loadfile),
-	__elfN(exec)
+	.l_load = __elfN(loadfile),
+	.l_exec = __elfN(exec)
 };
 
 struct file_format *file_formats[] = {
