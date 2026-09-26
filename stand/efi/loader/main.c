@@ -46,9 +46,6 @@
 #include <dev_net.h>
 #include <net.h>
 #include <machine/_inttypes.h>
-#ifdef __loongarch__
-#include <machine/loongarchreg.h>	/* CSR_DMW0_BASE */
-#endif
 
 #include <efi.h>
 #include <efilib.h>
@@ -842,18 +839,8 @@ setenv_int(const char *key, int val)
 static void *
 acpi_map_sdt(vm_offset_t addr)
 {
-#ifdef __loongarch__
-	/*
-	 * Under UEFI the firmware's page tables do not identity-map all of
-	 * physical RAM, so an ACPI table's physical address is not a usable
-	 * virtual address.  Reach it through the DMW0 direct-map window that
-	 * the firmware establishes for PLV0.
-	 */
-	return ((void *)(addr | CSR_DMW0_BASE));
-#else
 	/* PA == VA */
 	return ((void *)addr);
-#endif
 }
 
 static int
