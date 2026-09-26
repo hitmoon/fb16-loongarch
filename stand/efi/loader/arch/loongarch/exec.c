@@ -92,9 +92,6 @@ __elfN(exec)(struct preloaded_file *fp)
 	 * At this point we've called ExitBootServices, so we can't call
 	 * printf or any other function that uses Boot Services
 	 */
-	dev_cleanup();
-
-	printf("call kernel entry with arg: %p\n", (void*)modulep);
 	(*entry)((void *)modulep, (void *)entry, kernend);
 	panic("exec returned");
 }
